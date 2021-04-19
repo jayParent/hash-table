@@ -1,19 +1,20 @@
 class HashTable:
     """Table a addressage dispersee avec resolution de collision par chainage simple"""
-    def __init__(self, buffer, n):
-        self.buffer = buffer
-        self.n = n
-    
-    def __str__(self):
-        return super().__str__()
-    
-    def hash(self):
-        # Not implemented
-        pass
+    def __init__(self):
+        self.table = []
 
-    def add(self):
-        # Not implemented
-        pass
+    def __str__(self):
+        return f'Hash Table: {len(self.table)} items.'
+    
+    def hash(self, buffer, n):
+
+        #! Hash function implementation
+        h = 2**63
+
+        self.table.append(h)
+
+    def add(self, word):
+        self.table.append(word)
     
     def find(self):
         # Not implemented
@@ -22,7 +23,3 @@ class HashTable:
     def remove(self):
         # Not implemented
         pass
-    
-
-ht = HashTable([], 10)
-print(ht)
