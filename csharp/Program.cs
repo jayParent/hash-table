@@ -15,36 +15,52 @@ namespace csharp
 
         static void Main(string[] args)
         {
-            HashTable hashTable = new HashTable();
-            FillWithDict(hashTable);
-            hashTable.Delete("a");
+            Run();
         }
 
         private static void Run()
         {
             HashTable hashTable = new HashTable();
             FillWithDict(hashTable);
+            bool running = true;
 
-            while (true)
+            while (running)
             {
                 Console.WriteLine($"{Prompts["operations"]}");
                 string input = Console.ReadLine();
+                string word = "";
 
                 switch (input)
                 {
                     case "1":
                         Console.Write($"{Prompts["word"]}");
-                        string word = Console.ReadLine();
+                        word = Console.ReadLine();
                         hashTable.Add(word);
+                        break;
+                    
+                    case "2":
+                        Console.Write($"{Prompts["word"]}");
+                        word = Console.ReadLine();
+                        hashTable.Find(word);
+                        break;
 
+                    case "3":
+                        Console.Write($"{Prompts["word"]}");
+                        word = Console.ReadLine();
+                        hashTable.Delete(word);
                         break;
 
                     case "4":
+                        running = false;
                         break;
                 }
-
-                break;
             }
+        }
+        private static void Test()
+        {
+            HashTable hashTable = new HashTable();
+            FillWithDict(hashTable);
+            hashTable.ShowTableInfo();
         }
         private static void FillWithDict(HashTable hashTable)
         {
@@ -55,10 +71,7 @@ namespace csharp
                 hashTable.Add(word);
             }
 
-            hashTable.Add("a");
             Dictionnaire.Close();
-            var positions = hashTable.Find("aa");
-            hashTable.ShowTableInfo();
         }
     }
 }

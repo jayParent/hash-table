@@ -5,17 +5,33 @@ using System.Linq;
 public class HashTable
 {
     public List<string>[] Table { get; set; }
-    public int Size { get; set; } = 1000;
+    public ulong Items { get; set; }
+    public ulong Size { get; set; }
+    public double LoadFactor { get; set; }
+    public bool Balance { get; set; } = false;
+    public const ulong Magie = 173773926194192273;
 
-    public HashTable()
+    public HashTable(ulong size = 10000)
     {
+        Size = size;
         Table = new List<string>[Size];
     }
-    ~HashTable()
+    private ulong CutDeck(ulong h)
     {
-        Table = null;
+        return h << 32 | h >> 32;
     }
-    private ulong Hash(char[] buffer, uint n)
+    private ulong Bricolage(char[] buffer, uint n)
+    {
+        ulong h = 0;
+
+        for (int i = 0; i < n; i++)
+        {
+            h = CutDeck(h) + (buffer[i] * Magie);
+        }
+
+        return h % Size;
+    }
+    private ulong CheckSum(char[] buffer, uint n)
     {
         ulong sum = 0;
 
@@ -30,7 +46,7 @@ public class HashTable
     {
         char[] buffer = word.ToCharArray();
         uint n = (uint)buffer.Length;
-        ulong h = Hash(buffer, n);
+        ulong h = Bricolage(buffer, n);
 
         if (Table[h] == null)
         {
@@ -42,14 +58,40 @@ public class HashTable
             Table[h].Add(word);
         }
 
+        Items += 1;
+        if (Items > Size / 2)
+            Balance = true;
+
+        if (Balance == true)
+            Rebalance();
     }
+
+    private void Rebalance()
+    {
+        LoadFactor = (double)Items / (double)Size;
+
+        if (LoadFactor > 1.5)
+        {
+            ulong newSize = Items * 2;
+            Size = newSize;
+            List<string>[] tempTable = new List<string>[Size];
+            Table.CopyTo(tempTable, 0);
+            Table = tempTable;
+        }
+
+        Balance = false;
+    }
+
     public List<int[]> Find(string word)
     {
         char[] buffer = word.ToCharArray();
         uint n = (uint)buffer.Length;
-        ulong h = Hash(buffer, n);
+        ulong h = Bricolage(buffer, n);
         List<int[]> position = GetPositions(word, h);
 
+        if(position.Count > 0)
+            Console.WriteLine($"Position: [{position[0][0]}, {position[0][1]}]");
+        
         return position;
 
     }
@@ -89,17 +131,35 @@ public class HashTable
             else
                 Table[tablePosition] = null;
         }
+
+        Items -= 1;
+        Console.WriteLine($"Mot supprimé");
+        
     }
     public void ShowTableInfo()
     {
         int filledSlots = 0;
+        int min = Int32.MaxValue;
+        int max = 0;
+        int total = 0;
 
         for (int i = 0; i < Table.Length; i++)
         {
             if (Table[i] != null)
+            {
                 filledSlots++;
+
+                if (Table[i].Count < min)
+                    min = Table[i].Count;
+
+                if (Table[i].Count > max)
+                    max = Table[i].Count;
+            }
+
+            if (Table[i] != null)
+                total += Table[i].Count;
         }
 
-        Console.WriteLine($"{filledSlots}");
+        Console.WriteLine($"Items: {Items}\nLoad Factor: {LoadFactor}\nFilled: {filledSlots}\nMin: {min}\nMax: {max}");
     }
 }
