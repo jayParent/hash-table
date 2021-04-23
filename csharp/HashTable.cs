@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public class HashTable
 {
@@ -9,6 +10,10 @@ public class HashTable
     public HashTable()
     {
         Table = new List<string>[Size];
+    }
+    ~HashTable()
+    {
+        Table = null;
     }
     private ulong Hash(char[] buffer, uint n)
     {
@@ -48,7 +53,6 @@ public class HashTable
         return position;
 
     }
-
     private List<int[]> GetPositions(string word, ulong h)
     {
         int tablePosition = (int)h;
@@ -69,10 +73,22 @@ public class HashTable
 
         return positions;
     }
-
-    public void Delete()
+    public void Delete(string word)
     {
+        List<int[]> positions = Find(word);
 
+        for (int i = 0; i < positions.Count; i++)
+        {
+            int tablePosition = positions[i][0];
+            int listPosition = positions[i][1];
+
+            Table[tablePosition][listPosition] = null;
+
+            if (Table[tablePosition].Where(el => el != null).Count() > 0)
+                continue;
+            else
+                Table[tablePosition] = null;
+        }
     }
     public void ShowTableInfo()
     {
@@ -85,6 +101,5 @@ public class HashTable
         }
 
         Console.WriteLine($"{filledSlots}");
-
     }
 }

@@ -15,13 +15,15 @@ namespace csharp
 
         static void Main(string[] args)
         {
-            FillWithDict();
+            HashTable hashTable = new HashTable();
+            FillWithDict(hashTable);
+            hashTable.Delete("a");
         }
 
         private static void Run()
         {
             HashTable hashTable = new HashTable();
-            FillWithDict();
+            FillWithDict(hashTable);
 
             while (true)
             {
@@ -44,18 +46,16 @@ namespace csharp
                 break;
             }
         }
-        private static void FillWithDict()
+        private static void FillWithDict(HashTable hashTable)
         {
             string word;
-            
-            HashTable hashTable = new HashTable();
 
             while ((word = Dictionnaire.ReadLine()) != null)
             {
                 hashTable.Add(word);
             }
 
-            hashTable.Add("aa");
+            hashTable.Add("a");
             Dictionnaire.Close();
             var positions = hashTable.Find("aa");
             hashTable.ShowTableInfo();
