@@ -16,13 +16,13 @@ namespace csharp
         static void Main(string[] args)
         {
             Run();
-            // Test();
         }
 
         private static void Run()
         {
             HashTable hashTable = new HashTable();
             FillWithDict(hashTable);
+            hashTable.ShowTableInfo();
             bool running = true;
 
             while (running)
@@ -37,6 +37,7 @@ namespace csharp
                         Console.Write($"{Prompts["word"]}");
                         word = Console.ReadLine();
                         hashTable.Add(word);
+                        hashTable.ShowTableInfo();
                         break;
                     
                     case "2":
@@ -49,6 +50,7 @@ namespace csharp
                         Console.Write($"{Prompts["word"]}");
                         word = Console.ReadLine();
                         hashTable.Delete(word);
+                        hashTable.ShowTableInfo();
                         break;
 
                     case "4":

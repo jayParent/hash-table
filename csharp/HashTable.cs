@@ -63,13 +63,17 @@ public class HashTable
         {
             Table[h] = new List<string>();
             Table[h].Add(word);
+            Items++;
         }
         else
         {
-            Table[h].Add(word);
+            if(!Table[h].Contains(word)){
+                Table[h].Add(word);
+                Items++;
+            }
         }
         
-        Items++;
+        
         LoadFactor = (double)Items / (double)Size;
     }
 
@@ -169,6 +173,6 @@ public class HashTable
                 total += Table[i].Count;
         }
 
-        Console.WriteLine($"Items: {Items}\nLoad Factor: {LoadFactor}\nFilled: {filledSlots}\nMin: {min}\nMax: {max}");
+        Console.WriteLine($"Items: {Items}\nLoad Factor: {LoadFactor}\nFilled: {filledSlots}\nMin Collisions: {min}\nMax Collisions: {max}\n");
     }
 }
