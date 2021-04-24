@@ -8,8 +8,8 @@ public class HashTable
     public ulong Items { get; set; }
     public ulong Size { get; set; }
     public double LoadFactor { get; set; }
-    public bool Balance { get; set; } = false;
     public const ulong Magie = 173773926194192273;
+    public const ulong Prime = 67430303149321687;
 
     public HashTable(ulong size = 10000)
     {
@@ -20,7 +20,7 @@ public class HashTable
     {
         return h << 32 | h >> 32;
     }
-    private ulong Bricolage(char[] buffer, uint n)
+    private ulong Bricolage(char[] buffer, uint n) // Pour comparaison
     {
         ulong h = 0;
 
@@ -31,7 +31,7 @@ public class HashTable
 
         return h % Size;
     }
-    private ulong CheckSum(char[] buffer, uint n)
+    private ulong CheckSum(char[] buffer, uint n) // Pour comparaison
     {
         ulong sum = 0;
 
@@ -42,11 +42,22 @@ public class HashTable
 
         return sum;
     }
+    private ulong Hash(char[] buffer, uint n)
+    {
+        ulong h = 0;
+
+        for (int i = 0; i < n; i++)
+        {
+            h = (buffer[i] * Prime) + h ^ buffer[i] + (h << buffer[i] | h >> buffer[i]);
+        }
+
+        return h % Size;
+    }
     public void Add(string word)
     {
         char[] buffer = word.ToCharArray();
         uint n = (uint)buffer.Length;
-        ulong h = Bricolage(buffer, n);
+        ulong h = Hash(buffer, n);
 
         if (Table[h] == null)
         {
@@ -57,42 +68,26 @@ public class HashTable
         {
             Table[h].Add(word);
         }
-
-        Items += 1;
-        if (Items > Size / 2)
-            Balance = true;
-
-        if (Balance == true)
-            Rebalance();
-    }
-
-    private void Rebalance()
-    {
+        
+        Items++;
         LoadFactor = (double)Items / (double)Size;
-
-        if (LoadFactor > 1.5)
-        {
-            ulong newSize = Items * 2;
-            Size = newSize;
-            List<string>[] tempTable = new List<string>[Size];
-            Table.CopyTo(tempTable, 0);
-            Table = tempTable;
-        }
-
-        Balance = false;
     }
 
     public List<int[]> Find(string word)
     {
         char[] buffer = word.ToCharArray();
         uint n = (uint)buffer.Length;
-        ulong h = Bricolage(buffer, n);
-        List<int[]> position = GetPositions(word, h);
+        ulong h = Hash(buffer, n);
+        List<int[]> positions = GetPositions(word, h);
+        string positionString = BuildPositionString(positions);
 
-        if(position.Count > 0)
-            Console.WriteLine($"Position: [{position[0][0]}, {position[0][1]}]");
-        
-        return position;
+        if (positions.Count > 0)
+            Console.WriteLine($"Mot: {word}\n{positionString}");
+        else
+            Console.WriteLine($"Mot: {word} pas trouvé.");
+            
+
+        return positions;
 
     }
     private List<int[]> GetPositions(string word, ulong h)
@@ -115,6 +110,20 @@ public class HashTable
 
         return positions;
     }
+
+    private static string BuildPositionString(List<int[]> positions)
+    {
+        string positionsString = "";
+
+        for (int i = 0; i < positions.Count; i++)
+        {
+            int[] position = positions[i];
+            positionsString += $"[{position[0]}, {position[1]}]\n";
+        }
+
+        return positionsString;
+    }
+
     public void Delete(string word)
     {
         List<int[]> positions = Find(word);
@@ -133,8 +142,8 @@ public class HashTable
         }
 
         Items -= 1;
-        Console.WriteLine($"Mot supprimé");
-        
+        Console.WriteLine($"Mot: {word} supprimé.");
+
     }
     public void ShowTableInfo()
     {

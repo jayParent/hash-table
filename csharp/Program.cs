@@ -16,6 +16,7 @@ namespace csharp
         static void Main(string[] args)
         {
             Run();
+            // Test();
         }
 
         private static void Run()
